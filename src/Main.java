@@ -5,7 +5,7 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-
+import java.util.ArrayList;
 
 
 public class Main extends Application {
@@ -17,6 +17,7 @@ public class Main extends Application {
 
         //VARIABLES
 
+        ArrayList<User> listUser=new ArrayList<>();
 
         //Scene1
         Label username=new Label("Nom d'utilisateur");
@@ -249,6 +250,14 @@ public class Main extends Application {
                 tronc.getChildren().add(condiWrong);
             }
             else {
+                User lui=new User();
+                lui.setPrenom(prenom1.getText());
+                lui.setNomDeFamille(nomdeFam1.getText());
+                lui.setNomUtilisateur(nomUser1.getText());
+                lui.setPassword(mdp1.getText());
+                //toggle
+                lui.setAge((Integer) age1.getValueFactory().getValue());
+                listUser.add(lui);
                 primaryStage.setScene(sc1);
                 prenom1.setText("");
                 nomdeFam1.setText("");
@@ -260,6 +269,7 @@ public class Main extends Application {
                 bouton3.setSelected(false);
                 age1.getValueFactory().setValue(18);
                 condi.setSelected(false);
+
             }
         });
         effacer.setOnAction((event) ->{
@@ -276,6 +286,16 @@ public class Main extends Application {
         });
         retour.setOnAction((event) ->{
             primaryStage.setScene(sc1);
+            prenom1.setText("");
+            nomdeFam1.setText("");
+            nomUser1.setText("");
+            mdp1.setText("");
+            mdp3.setText("");
+            bouton1.setSelected(false);
+            bouton2.setSelected(false);
+            bouton3.setSelected(false);
+            age1.getValueFactory().setValue(18);
+            condi.setSelected(false);
         });
 
         //scene3
