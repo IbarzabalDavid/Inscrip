@@ -1,3 +1,4 @@
+import com.sun.istack.internal.FinalArrayList;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -5,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.*;
 import java.util.ArrayList;
 
 
@@ -17,8 +19,9 @@ public class Main extends Application {
 
         //VARIABLES
 
-        ArrayList<User> listUser=new ArrayList<>();
-
+        ArrayList<User> listUser=new ArrayList();
+        final ArrayList<User>[] that=new ArrayList[]{listUser};
+        final boolean[] checkUp={false,false};
         //Scene1
         Label username=new Label("Nom d'utilisateur");
         Label password=new Label("Mot de passe");
@@ -28,6 +31,8 @@ public class Main extends Application {
         pass.setPromptText("Mot de passe");
         Button connect=new Button("Se connecter");
         Button inscrip=new Button("S'inscrire");
+        Label connectWrong=new Label("La connection a écouhée");
+        connectWrong.setTextFill(Color.RED);
 
         //Scene2
         Label prenom=new Label("Prénom");
@@ -102,6 +107,8 @@ public class Main extends Application {
         connect.setTranslateY(255);
         inscrip.setTranslateX(270);
         inscrip.setTranslateY(255);
+        connectWrong.setTranslateX(180);
+        connectWrong.setTranslateY(300);
 
         //Scene2
         prenom.setTranslateX(180);
@@ -192,9 +199,29 @@ public class Main extends Application {
         //scene1
         inscrip.setOnAction((event) ->{
             primaryStage.setScene(sc2);
+            user.clear();
+            pass.clear();
+            if (root.getChildren().contains(connectWrong)){
+                root.getChildren().remove(connectWrong);
+            }
         });
         connect.setOnAction((event) ->{
-            primaryStage.setScene(sc3);//+Checkup stuff
+
+
+            if (root.getChildren().contains(connectWrong)){
+                root.getChildren().remove(connectWrong);
+            }
+            for (int i=0;i<that[0].size();i++){
+                if (user.getText().equals(that[0].get(i).getNomUtilisateur())){
+                    if (pass.getText().equals(that[0].get(i).getPassword())){
+                        primaryStage.setScene(sc3);
+                        checkUp[1]=true;
+                    }
+                }
+            }
+            if (!checkUp[1]){
+                root.getChildren().add(connectWrong);
+            }
         });
 
         //scene2
@@ -224,6 +251,11 @@ public class Main extends Application {
                 tronc.getChildren().remove(condiWrong);
             }
 
+            for (int i=0;i<that[0].size();i++){
+                if (nomUser1.getText().equals(that[0].get(i).getNomUtilisateur())){
+                    checkUp[0]=true;
+                }
+            }
 
             if (prenom1.getText().equals("")){
                 tronc.getChildren().add(prenomWrong);
@@ -234,9 +266,10 @@ public class Main extends Application {
             else if (nomUser1.getText().equals("")){
                 tronc.getChildren().add(nomUserWrong);
             }
-            //else if (){
-            //already used
-            //}
+            else if (checkUp[0]){
+                tronc.getChildren().add(userAlreadyUsed);
+                checkUp[0]=false;
+            }
             else if (mdp1.getText().equals("")){
                 tronc.getChildren().add(passwordWrong);
             }
@@ -255,9 +288,17 @@ public class Main extends Application {
                 lui.setNomDeFamille(nomdeFam1.getText());
                 lui.setNomUtilisateur(nomUser1.getText());
                 lui.setPassword(mdp1.getText());
-                //toggle
+                if (bouton1.isSelected()){
+                    lui.setGenre("h");
+                }
+                else if (bouton2.isSelected()){
+                    lui.setGenre("f");
+                }
+                else{
+                    lui.setGenre("a");
+                }
                 lui.setAge((Integer) age1.getValueFactory().getValue());
-                listUser.add(lui);
+                that[0].add(lui);
                 primaryStage.setScene(sc1);
                 prenom1.setText("");
                 nomdeFam1.setText("");
@@ -269,6 +310,8 @@ public class Main extends Application {
                 bouton3.setSelected(false);
                 age1.getValueFactory().setValue(18);
                 condi.setSelected(false);
+
+
 
             }
         });
@@ -306,5 +349,43 @@ public class Main extends Application {
         primaryStage.setScene(sc1);
         primaryStage.show();
     }
+    public static void save(ArrayList<User> liste) {
+        try {
+            ObjectOutputStream sortie = new ObjectOutputStream(
+                    new BufferedOutputStream(
+                            new FileOutputStream("monfichier.dat")));
+            sortie.writeObject(liste);
+            sortie.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Imposssible de sauvegarder");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Imposssible de sauvegarder");
+        }
+    }
+    public static ArrayList<User> load() {
+        ArrayList<User> liste = null;
+        try {
+            ObjectInputStream entree = new ObjectInputStream(
+                    new BufferedInputStream(
+                            new FileInputStream("monfichier.dat")));
+            try {
+                liste = (ArrayList<User>) entree.readObject();
+                entree.close();
+                System.out.println("charge de la liste reussi");
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                System.out.println("Imposssible de charger Liste");
+            }
 
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Imposssible de charger Liste");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Imposssible de charger Liste");
+        }
+        return liste;
+    }
 }
