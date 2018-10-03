@@ -7,9 +7,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -224,7 +226,7 @@ public class Main extends Application {
             }
             for (int i=0;i<that[0].size();i++){
                 if (user.getText().equals(that[0].get(i).getNomUtilisateur())){
-                    if (pass.getText().equals(that[0].get(i).getPassword())){
+                    if (hash(pass.getText()).equals(that[0].get(i).getPassword())){
                         primaryStage.setScene(sc3);
                         checkUp[1]=true;
                     }
@@ -298,7 +300,7 @@ public class Main extends Application {
                 lui.setPrenom(prenom1.getText());
                 lui.setNomDeFamille(nomdeFam1.getText());
                 lui.setNomUtilisateur(nomUser1.getText());
-                lui.setPassword(mdp1.getText());
+                lui.setPassword(hash(mdp1.getText()));
                 if (bouton1.isSelected()){
                     lui.setGenre("h");
                 }
@@ -388,6 +390,25 @@ public class Main extends Application {
             System.out.println("Dont work read1");
         }
 
+    }
+    public static String hash(String chaine){
+
+        try{
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(
+                    chaine.getBytes(StandardCharsets.UTF_8));
+
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < encodedhash.length; i++) {
+                String hex = Integer.toHexString(0xff & encodedhash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+                return hexString.toString();
+            }
+        }catch (Exception e){
+            System.out.println("Dont work hash");
+        }
+        return null;
     }
 
 }
