@@ -7,10 +7,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Main extends Application {
+    private File file;
     public static void main(String[] args) { launch(args); }
 
     public void start(Stage primaryStage){
@@ -87,7 +92,13 @@ public class Main extends Application {
         Label load=new Label("Chargement du contenu");
 
 
-
+        //LOAD
+        try {
+            file = new File("archiveCSV.csv");
+            load(listUser);
+        } catch (Exception e){
+            System.out.println("Dont work read2");
+        }
 
         //PLACEMENTS
 
@@ -283,7 +294,7 @@ public class Main extends Application {
                 tronc.getChildren().add(condiWrong);
             }
             else {
-                User lui=new User();
+                User lui=new User("","","","","","");
                 lui.setPrenom(prenom1.getText());
                 lui.setNomDeFamille(nomdeFam1.getText());
                 lui.setNomUtilisateur(nomUser1.getText());
@@ -297,8 +308,21 @@ public class Main extends Application {
                 else{
                     lui.setGenre("a");
                 }
-                lui.setAge((Integer) age1.getValueFactory().getValue());
+                lui.setAge(age1.getValueFactory().getValue().toString());
+
                 that[0].add(lui);
+
+                //save fichier
+                try {
+                    String uneLigne = lui.getPrenom()+","+lui.getNomDeFamille()+","+lui.getNomUtilisateur()+","+lui.getPassword()+","+lui.getGenre()+","+lui.getAge()+"\n";
+                    if (file.exists())
+                        Files.write(Paths.get("archiveCSV.csv"), uneLigne.getBytes(), StandardOpenOption.APPEND);
+                    else
+                        Files.write(Paths.get("archiveCSV.csv"), uneLigne.getBytes(), StandardOpenOption.CREATE);
+                }catch (Exception e){
+                    System.out.println("Dont work write");
+                }
+
                 primaryStage.setScene(sc1);
                 prenom1.setText("");
                 nomdeFam1.setText("");
@@ -349,43 +373,21 @@ public class Main extends Application {
         primaryStage.setScene(sc1);
         primaryStage.show();
     }
-    public static void save(ArrayList<User> liste) {
-        try {
-            ObjectOutputStream sortie = new ObjectOutputStream(
-                    new BufferedOutputStream(
-                            new FileOutputStream("monfichier.dat")));
-            sortie.writeObject(liste);
-            sortie.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Imposssible de sauvegarder");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Imposssible de sauvegarder");
-        }
-    }
-    public static ArrayList<User> load() {
-        ArrayList<User> liste = null;
-        try {
-            ObjectInputStream entree = new ObjectInputStream(
-                    new BufferedInputStream(
-                            new FileInputStream("monfichier.dat")));
-            try {
-                liste = (ArrayList<User>) entree.readObject();
-                entree.close();
-                System.out.println("charge de la liste reussi");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                System.out.println("Imposssible de charger Liste");
-            }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Imposssible de charger Liste");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Imposssible de charger Liste");
+    public static void load(ArrayList<User> users){
+        try {
+            List<String> toutesLignes = Files.readAllLines(Paths.get("archiveCSV.csv"));
+            String uneLigne;
+            for (int i = 0; i<toutesLignes.size(); i++) {
+                uneLigne=toutesLignes.get(i);
+                String[] division = uneLigne.split(",");
+                users.add(new User(division[0],division[1],division[2],division[3],division[4],(division[5])));
+
+            }
+        }catch (Exception e){
+            System.out.println("Dont work read1");
         }
-        return liste;
+
     }
+
 }

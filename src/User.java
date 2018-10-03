@@ -4,7 +4,7 @@ public class User {
     private String nomUtilisateur;
     private String password;
     private String genre;
-    private int age;
+    private String age;
 
     public String getPrenom() {
         return prenom;
@@ -46,11 +46,20 @@ public class User {
         this.genre = genre;
     }
 
-    public int getAge() {
+    public String getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public User(String prenom, String nomDeFamille, String nomUtilisateur, String password, String genre, String age) {
+        this.prenom = prenom;
+        this.nomDeFamille = nomDeFamille;
+        this.nomUtilisateur = nomUtilisateur;
+        this.password = password;
+        this.genre = genre;
         this.age = age;
     }
 }
